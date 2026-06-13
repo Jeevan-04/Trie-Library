@@ -1,0 +1,432 @@
+/* Retro 90s/00s Style Sheet */
+body {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 15px;
+    font-size: 13px;
+}
+
+h1, h2, h3 {
+    font-family: "Times New Roman", Times, serif;
+    margin-top: 0;
+}
+
+/* Funky Logo styling */
+.retro-logo {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 38px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 5px;
+    user-select: none;
+}
+.retro-logo span:nth-child(1) { color: #0000ff; } /* R */
+.retro-logo span:nth-child(2) { color: #ff0000; } /* e */
+.retro-logo span:nth-child(3) { color: #ffcc00; } /* s */
+.retro-logo span:nth-child(4) { color: #0000ff; } /* e */
+.retro-logo span:nth-child(5) { color: #008000; } /* a */
+.retro-logo span:nth-child(6) { color: #ff0000; } /* r */
+.retro-logo span:nth-child(7) { color: #0000ff; } /* c */
+.retro-logo span:nth-child(8) { color: #008000; } /* h */
+.logo-sub {
+    font-size: 11px;
+    color: #555555;
+    text-align: center;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+/* Bevel panel containers for debugging */
+.retro-panel {
+    background-color: #f0f0f0;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.retro-panel-title {
+    background-color: #000080;
+    color: #ffffff;
+    padding: 3px 6px;
+    font-weight: bold;
+    font-size: 12px;
+    font-family: Tahoma, sans-serif;
+    margin-top: -10px;
+    margin-left: -10px;
+    margin-right: -10px;
+    margin-bottom: 10px;
+}
+
+/* Layout system */
+.main-layout {
+    display: flex;
+    gap: 15px;
+}
+
+.search-section {
+    flex: 3;
+    min-width: 0;
+}
+
+.internals-section {
+    flex: 2;
+    min-width: 320px;
+}
+
+/* Search bar styling */
+.search-form {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.search-input-container {
+    position: relative;
+    display: inline-block;
+    width: 60%;
+}
+.search-box {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-family: "Times New Roman", Times, serif;
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+.retro-button {
+    padding: 4px 15px;
+    font-size: 13px;
+    font-family: Tahoma, sans-serif;
+    background-color: #dcdcdc;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    cursor: pointer;
+}
+.retro-button:active {
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+/* Suggestions box */
+.suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #808080;
+    z-index: 100;
+    text-align: left;
+    display: none;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+.suggestion-item {
+    padding: 6px;
+    cursor: pointer;
+}
+.suggestion-item:hover {
+    background-color: #000080;
+    color: #ffffff;
+}
+
+/* Search results styling */
+.paper-item {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #c0c0c0;
+}
+.paper-title {
+    font-size: 16px;
+    font-family: "Times New Roman", Times, serif;
+    font-weight: bold;
+    color: #0000ee;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+.paper-title:visited {
+    color: #551a8b;
+}
+.paper-meta {
+    font-size: 11px;
+    color: #008000;
+    margin-bottom: 6px;
+}
+.paper-meta a {
+    color: #008000;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.paper-meta a:hover {
+    color: #ff0000;
+}
+.paper-abstract {
+    line-height: 1.4;
+    color: #222222;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+.pagination a, .pagination span {
+    padding: 3px 8px;
+    margin: 0 3px;
+    border: 1px solid #c0c0c0;
+    text-decoration: none;
+    color: #0000ee;
+    cursor: pointer;
+}
+.pagination a:hover {
+    background-color: #f0f0f0;
+}
+.pagination .active {
+    background-color: #000080;
+    color: #ffffff;
+    border: 1px solid #000080;
+}
+
+/* Visualizer canvas/svg sizes */
+.trie-svg {
+    width: 100%;
+    height: 250px;
+    background-color: #ffffff;
+    border: 1px solid #808080;
+}
+
+/* Tables for memory visualization */
+.retro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+.retro-table th, .retro-table td {
+    border: 1px solid #808080;
+    padding: 4px 6px;
+    text-align: left;
+}
+.retro-table th {
+    background-color: #dcdcdc;
+    font-weight: bold;
+}
+.retro-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Pipeline visualization */
+.pipeline-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 10px;
+    border: 1px solid #808080;
+    margin-top: 10px;
+    overflow-x: auto;
+}
+.pipeline-step {
+    border: 1px solid #808080;
+    background-color: #dcdcdc;
+    padding: 5px 8px;
+    font-size: 10px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.pipeline-step.active {
+    background-color: #000080;
+    color: #ffffff;
+    font-weight: bold;
+}
+.pipeline-arrow {
+    font-weight: bold;
+    padding: 0 5px;
+    color: #808080;
+}
+
+/* Complexity panel grids */
+.complexity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.complexity-card {
+    background-color: #ffffff;
+    border: 1px solid #808080;
+    padding: 8px;
+}
+
+/* Logger output style */
+.logger-console {
+    background-color: #000000;
+    color: #00ff00;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px;
+    height: 120px;
+    overflow-y: scroll;
+    padding: 8px;
+    border: 2px solid #808080;
+}
+
+/* Detailed Metadata Modal/View */
+.metadata-view {
+    background-color: #ffffe0; /* Yellow sticky note style */
+    border: 1px solid #808080;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: none;
+}
+.metadata-close {
+    float: right;
+    cursor: pointer;
+    font-weight: bold;
+    color: #ff0000;
+}
+
+/* Analytics charts containers */
+.analytics-section {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+.chart-container {
+    flex: 1;
+    background-color: #ffffff;
+    border: 1px solid #808080;
+    padding: 10px;
+    min-height: 180px;
+}
+.chart-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.chart-label {
+    width: 120px;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.chart-bar-fill {
+    height: 12px;
+    background-color: #000080;
+}
+.chart-value {
+    margin-left: 6px;
+    font-size: 9px;
+    color: #666666;
+}
+
+/* Graphical Memory Blocks (Pointers) */
+.heap-blocks-container {
+    font-family: Tahoma, sans-serif;
+    color: #000000;
+}
+.heap-mem-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    background-color: #dcdcdc;
+    padding: 6px;
+    font-size: 10px;
+    width: 120px;
+    margin: 0 auto;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+    transition: background-color 0.2s, border-color 0.2s;
+    text-align: center;
+}
+.heap-mem-node.active {
+    background-color: #ffff00 !important;
+    border-right: 2px solid #808000;
+    border-bottom: 2px solid #808000;
+    font-weight: bold;
+}
+.heap-mem-node.terminal {
+    border: 2px outset #ff5555;
+    background-color: #ffe0e0;
+}
+.heap-mem-node .addr {
+    font-family: monospace;
+    font-weight: bold;
+    color: #800000;
+    border-bottom: 1px dashed #808080;
+    width: 100%;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+}
+.heap-mem-node .char-val {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000080;
+}
+
+/* Paper Score Badge Tooltips */
+.paper-score-badge {
+    position: relative;
+    font-family: Tahoma, sans-serif;
+    font-size: 10px;
+    background-color: #e0e0e0;
+    border-top: 1px solid #808080;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    padding: 3px 6px;
+    cursor: help;
+    flex-shrink: 0;
+}
+.paper-score-badge:hover .score-tooltip {
+    display: block;
+}
+.score-tooltip {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #ffffe0;
+    border: 1px solid #000000;
+    color: #000000;
+    padding: 5px;
+    width: 150px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    z-index: 50;
+    font-family: monospace;
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+/* Internals Flowchart Nodes */
+.flow-node {
+    border: 2px solid #808080;
+    background-color: #f0f0f0;
+    padding: 4px 6px;
+    font-size: 10px;
+    text-align: center;
+    border-radius: 1px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+    z-index: 2;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.flow-node.active {
+    background-color: #ffffcc;
+    border-color: #ff0000;
+    box-shadow: 0 0 5px rgba(255,0,0,0.4);
+}
+
