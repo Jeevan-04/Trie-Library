@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: research_explorer_backend
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount the large JSON database from the host into the container.
+      # This avoids copying the 5.3 GB dataset into the image.
+      - ./arxiv-metadata-oai-snapshot.json:/app/arxiv-metadata-oai-snapshot.json
+    restart: unless-stopped

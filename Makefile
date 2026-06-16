@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -O3 -std=c11
+CFLAGS = -Wall -Wextra -O3 -std=c11 -D_GNU_SOURCE
 
 research_explorer: main.o trie.o parser.o server.o
 	$(CC) $(CFLAGS) -o research_explorer main.o trie.o parser.o server.o

@@ -1,0 +1,5 @@
+arxiv-metadata-oai-snapshot.json
+research_explorer
+*.o
+.git
+.DS_Store
