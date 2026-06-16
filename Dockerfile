@@ -25,6 +25,10 @@ COPY index.html .
 COPY index.css .
 COPY index.js .
 
+# Copy the gzipped subset database and decompress it
+COPY arxiv-metadata-oai-snapshot.json.gz .
+RUN gzip -d arxiv-metadata-oai-snapshot.json.gz
+
 # Expose HTTP port 10000
 EXPOSE 10000
 
