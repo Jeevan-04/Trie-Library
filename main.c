@@ -298,14 +298,32 @@ static void extract_and_index_fields(const char* line, size_t line_len, int pape
 
 }
 
+static void create_mock_dataset(const char* filename) {
+    printf("Dataset file '%s' not found. Creating a minimal mock dataset for Demo Mode...\n", filename);
+    FILE* f = fopen(filename, "w");
+    if (!f) {
+        perror("Failed to create mock dataset");
+        return;
+    }
+    // Write some valid json papers (one per line)
+    fprintf(f, "{\"id\":\"demo.0001\",\"submitter\":\"Demo Author\",\"authors\":\"Jeevan Lal, Alex Smith\",\"title\":\"An Introduction to Trie Data Structures for Fast Autocomplete\",\"comments\":\"Demo Paper\",\"journal-ref\":\"J. Trie Sci. 2026\",\"doi\":\"10.1101/trie.0001\",\"report-no\":null,\"categories\":\"cs.DS cs.IR\",\"license\":null,\"abstract\":\"  This paper presents a detailed study of Trie data structures, focusing on First-Child Next-Sibling (FCNS) memory optimization. We demonstrate high-performance prefix searches and live suggestion lookups on large vocabularies.\",\"versions\":[{\"version\":\"v1\",\"created\":\"Mon, 15 Jun 2026 12:00:00 GMT\"}],\"update_date\":\"2026-06-16\",\"authors_parsed\":[[\"Lal\",\"Jeevan\",\"\"],[\"Smith\",\"Alex\",\"\"]]}\n");
+    fprintf(f, "{\"id\":\"demo.0002\",\"submitter\":\"Demo Author\",\"authors\":\"Quantum Explorer Group\",\"title\":\"Quantum Computing and Neural Network Architectures\",\"comments\":\"Demo Paper\",\"journal-ref\":\"Quant. Inf. 2026\",\"doi\":\"10.1101/quantum.0002\",\"report-no\":null,\"categories\":\"quant-ph cs.NE\",\"license\":null,\"abstract\":\"  We explore the intersection of quantum computing mechanics with deep neural networks. In this paper, we focus on quantum dot layouts and physical representations of qubits in semiconductor materials.\",\"versions\":[{\"version\":\"v1\",\"created\":\"Tue, 16 Jun 2026 09:00:00 GMT\"}],\"update_date\":\"2026-06-16\",\"authors_parsed\":[[\"Explorer Group\",\"Quantum\",\"\"]]}\n");
+    fprintf(f, "{\"id\":\"demo.0003\",\"submitter\":\"Demo Author\",\"authors\":\"AI Research Labs\",\"title\":\"Deep Learning and Large Language Models for Agentic Workflows\",\"comments\":\"Demo Paper\",\"journal-ref\":\"AI Res. 2026\",\"doi\":\"10.1101/ai.0003\",\"report-no\":null,\"categories\":\"cs.CL cs.AI\",\"license\":null,\"abstract\":\"  Large language models have shown remarkable capabilities in reasoning and autonomous planning. This work analyzes multi-agent coordination frameworks and evaluates planning success rates in complex software environments.\",\"versions\":[{\"version\":\"v1\",\"created\":\"Tue, 16 Jun 2026 10:00:00 GMT\"}],\"update_date\":\"2026-06-16\",\"authors_parsed\":[[\"Research Labs\",\"AI\",\"\"]]}\n");
+    fclose(f);
+}
+
 int main() {
     const char* filename = "arxiv-metadata-oai-snapshot.json";
     
     printf("Opening dataset file: %s...\n", filename);
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
-        perror("Failed to open dataset file");
-        return EXIT_FAILURE;
+        create_mock_dataset(filename);
+        fd = open(filename, O_RDONLY);
+        if (fd < 0) {
+            perror("Failed to open dataset file after creating mock");
+            return EXIT_FAILURE;
+        }
     }
     
     struct stat sb;
