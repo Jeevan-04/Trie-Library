@@ -7,7 +7,9 @@ services:
       dockerfile: Dockerfile
     container_name: research_explorer_backend
     ports:
-      - "8080:8080"
+      - "10000:10000"
+    environment:
+      - PORT=10000
     volumes:
       # Mount the large JSON database from the host into the container.
       # This avoids copying the 5.3 GB dataset into the image.

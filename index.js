@@ -1,5 +1,5 @@
 // retro-explorer controller
-const host = window.location.protocol === 'file:' ? 'http://127.0.0.1:8080' : '';
+const host = window.location.protocol === 'file:' ? 'http://127.0.0.1:10000' : '';
 
 const searchInput = document.getElementById("search-input");
 const suggestionsBox = document.getElementById("suggestions");
@@ -72,7 +72,7 @@ function runLoaderSimulation() {
     const interval = setInterval(() => {
         if (count >= 12) {
             clearInterval(interval);
-            logDatasetEvent("[Trie Construction] Index fully compiled. Sockets bound to port 8080.");
+            logDatasetEvent(`[Trie Construction] Index fully compiled. Sockets bound to port ${window.location.port || '10000'}.`);
             return;
         }
         const simAddr = (0x1000 + count * 0x8A0).toString(16).toUpperCase();

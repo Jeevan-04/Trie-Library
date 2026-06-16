@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Research Explorer: Visual Search Engine Internals Simulator</title>
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
 
     <!-- CORS/Local File Warning Banner -->
-    <div id="file-protocol-warning" style="display: none; background-color: #ffcccc; border: 2px double #cc0000; padding: 10px; margin-bottom: 12px; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: bold; color: #cc0000; text-align: center;">
-        ⚠️ WARNING: Accessing this app via the <code>file://</code> protocol is blocked by browser security restrictions (CORS).<br/>
-        Please open <a href="http://127.0.0.1:8080" style="color: #0000ee; text-decoration: underline;">http://127.0.0.1:8080</a> in your browser to run queries properly.
+    <div id="file-protocol-warning"
+        style="display: none; background-color: #ffcccc; border: 2px double #cc0000; padding: 10px; margin-bottom: 12px; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: bold; color: #cc0000; text-align: center;">
+        ⚠️ WARNING: Accessing this app via the <code>file://</code> protocol is blocked by browser security restrictions
+        (CORS).<br />
+        Please open <a href="http://127.0.0.1:10000"
+            style="color: #0000ee; text-decoration: underline;">http://127.0.0.1:10000</a> in your browser to run
+        queries
+        properly.
     </div>
 
     <!-- Funky Logo -->
     <div class="retro-logo">
-        <span>R</span><span>e</span><span>s</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span> Explorer
+        <span>R</span><span>e</span><span>s</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span>
+        Explorer
     </div>
     <div class="logo-sub">Low-Level Trie-Based Search Engine Visual Simulator v1.0 (2000 Edition)</div>
 
     <!-- Top Statistics Bar -->
     <div class="retro-panel" style="margin-bottom: 12px; padding: 6px 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; font-family: Tahoma, sans-serif;">
+        <div
+            style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; font-family: Tahoma, sans-serif;">
             <div>Dataset Snapshot: <span style="color: #000080;">arxiv-metadata-oai-snapshot.json</span></div>
             <div>Indexed Papers: <span style="color: #008000;" id="stat-papers">3,066,190</span></div>
             <div>Unique Authors: <span style="color: #800000;" id="stat-authors">1,240,881</span></div>
@@ -35,21 +44,24 @@
     <div class="retro-panel" style="margin-bottom: 12px;">
         <div class="search-form" style="margin-bottom: 0;">
             <div class="search-input-container">
-                <input type="text" id="search-input" class="search-box" autocomplete="off" placeholder="Enter keywords (e.g. quantum, deep, learning, neural)...">
+                <input type="text" id="search-input" class="search-box" autocomplete="off"
+                    placeholder="Enter keywords (e.g. quantum, deep, learning, neural)...">
                 <div id="suggestions" class="suggestions-box"></div>
             </div>
             <button id="search-btn" class="retro-button">Search</button>
-            <button id="walkthrough-start-btn" class="retro-button" style="background-color: #ffffe0; font-weight: bold; border-color: #808000;">Step Through Search</button>
+            <button id="walkthrough-start-btn" class="retro-button"
+                style="background-color: #ffffe0; font-weight: bold; border-color: #808000;">Step Through
+                Search</button>
             <button id="clear-btn" class="retro-button">Clear</button>
-            
+
             <div style="margin-top: 8px; font-size: 12px;">
-                Filter: 
+                Filter:
                 <label><input type="radio" name="search-field" value="all" checked> All Fields</label> &nbsp;
                 <label><input type="radio" name="search-field" value="title"> Title Only</label> &nbsp;
                 <label><input type="radio" name="search-field" value="authors"> Authors Only</label> &nbsp;
                 <label><input type="radio" name="search-field" value="categories"> Categories Only</label>
                 &nbsp;|&nbsp;
-                Sort: 
+                Sort:
                 <select id="sort-select" style="font-family: Tahoma, sans-serif;">
                     <option value="default">Relevance (Trie Match)</option>
                     <option value="date">Date (Newest First)</option>
@@ -60,43 +72,64 @@
     </div>
 
     <!-- Interactive Walkthrough Mode Panel -->
-    <div class="retro-panel" id="walkthrough-panel" style="display: none; margin-bottom: 12px; background-color: #ffffe0; border: 2px solid #808000;">
-        <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; color: #808000;">Interactive Walkthrough Mode</div>
+    <div class="retro-panel" id="walkthrough-panel"
+        style="display: none; margin-bottom: 12px; background-color: #ffffe0; border: 2px solid #808000;">
+        <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; color: #808000;">Interactive Walkthrough
+            Mode</div>
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div id="walkthrough-step-label" style="font-size: 11px; font-weight: bold;">Step 1 of 6: Read Input</div>
             <div>
-                <button id="walkthrough-next-btn" class="retro-button" style="font-weight: bold; background-color: #ffffcc;">Next Step &gt;</button>
+                <button id="walkthrough-next-btn" class="retro-button"
+                    style="font-weight: bold; background-color: #ffffcc;">Next Step &gt;</button>
                 <button id="walkthrough-exit-btn" class="retro-button">Exit Walkthrough</button>
             </div>
         </div>
-        <div id="walkthrough-step-desc" style="font-size: 11px; margin-top: 6px; padding: 6px; background: #ffffff; border: 1px solid #808080; line-height: 1.3;">
+        <div id="walkthrough-step-desc"
+            style="font-size: 11px; margin-top: 6px; padding: 6px; background: #ffffff; border: 1px solid #808080; line-height: 1.3;">
             Awaiting query input...
         </div>
     </div>
 
     <!-- Main Side-by-Side Area -->
     <div class="main-layout">
-        
+
         <!-- Left Column: Results & Inspector -->
         <div class="search-section">
-            
+
             <!-- Metadata Detailed View -->
             <div id="metadata-inspector" class="metadata-view">
                 <span id="close-inspector" class="metadata-close">[Close]</span>
-                <h3 id="inspect-title" style="margin-bottom: 8px; color: #800000; font-family: 'Times New Roman', Times, serif;"></h3>
+                <h3 id="inspect-title"
+                    style="margin-bottom: 8px; color: #800000; font-family: 'Times New Roman', Times, serif;"></h3>
                 <table class="retro-table" style="background-color: #fffff6;">
-                    <tr><td style="width: 100px; font-weight: bold;">Paper ID:</td><td id="inspect-id"></td></tr>
-                    <tr><td style="font-weight: bold;">Authors:</td><td id="inspect-authors"></td></tr>
-                    <tr><td style="font-weight: bold;">Categories:</td><td id="inspect-categories"></td></tr>
-                    <tr><td style="font-weight: bold;">Submission Date:</td><td id="inspect-date"></td></tr>
-                    <tr><td style="font-weight: bold;">Abstract:</td><td id="inspect-abstract" style="text-align: justify; line-height: 1.4;"></td></tr>
+                    <tr>
+                        <td style="width: 100px; font-weight: bold;">Paper ID:</td>
+                        <td id="inspect-id"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Authors:</td>
+                        <td id="inspect-authors"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Categories:</td>
+                        <td id="inspect-categories"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Submission Date:</td>
+                        <td id="inspect-date"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Abstract:</td>
+                        <td id="inspect-abstract" style="text-align: justify; line-height: 1.4;"></td>
+                    </tr>
                 </table>
             </div>
 
             <!-- Search Results panel -->
             <div class="retro-panel">
                 <div class="retro-panel-title">Search Results</div>
-                <div id="results-count" style="margin-bottom: 10px; font-style: italic; color: #555555;">Ready to explore...</div>
+                <div id="results-count" style="margin-bottom: 10px; font-style: italic; color: #555555;">Ready to
+                    explore...</div>
                 <div id="results-container">
                     <!-- Dynamic results go here -->
                     <div style="text-align: center; padding: 40px; color: #808080;">
@@ -109,11 +142,12 @@
 
         <!-- Right Column: Visualizations -->
         <div class="internals-section">
-            
+
             <!-- Trie Visualization -->
             <div class="retro-panel">
                 <div class="retro-panel-title">Trie Visualization Engine</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                     <span style="font-size: 11px;">Lookup path traversal and suffix matching:</span>
                     <span id="trie-term-tabs" style="display: flex; gap: 4px;"></span>
                 </div>
@@ -122,10 +156,18 @@
                     <g id="trie-nodes"></g>
                 </svg>
                 <div style="display: flex; justify-content: space-around; font-size: 10px; margin-top: 5px;">
-                    <div><span style="display:inline-block; width:10px; height:10px; background-color:#dcdcdc; border:1px solid #808080;"></span> Normal</div>
-                    <div><span style="display:inline-block; width:10px; height:10px; background-color:#ffff00; border:1px solid #808080;"></span> Visited</div>
-                    <div><span style="display:inline-block; width:10px; height:10px; background-color:#add8e6; border:1px solid #808080;"></span> Matched</div>
-                    <div><span style="display:inline-block; width:10px; height:10px; background-color:#ff9999; border:1px solid #808080;"></span> Terminal</div>
+                    <div><span
+                            style="display:inline-block; width:10px; height:10px; background-color:#dcdcdc; border:1px solid #808080;"></span>
+                        Normal</div>
+                    <div><span
+                            style="display:inline-block; width:10px; height:10px; background-color:#ffff00; border:1px solid #808080;"></span>
+                        Visited</div>
+                    <div><span
+                            style="display:inline-block; width:10px; height:10px; background-color:#add8e6; border:1px solid #808080;"></span>
+                        Matched</div>
+                    <div><span
+                            style="display:inline-block; width:10px; height:10px; background-color:#ff9999; border:1px solid #808080;"></span>
+                        Terminal</div>
                 </div>
             </div>
 
@@ -134,21 +176,43 @@
                 <div class="retro-panel-title">Search Complexity Analyzer</div>
                 <div class="complexity-grid">
                     <div class="complexity-card">
-                        <div style="font-weight: bold; font-size: 11px; border-bottom: 1px solid #808080; margin-bottom: 5px; color: #000080;">Trie-based Search</div>
+                        <div
+                            style="font-weight: bold; font-size: 11px; border-bottom: 1px solid #808080; margin-bottom: 5px; color: #000080;">
+                            Trie-based Search</div>
                         <div style="font-size: 10px;">Complexity: <b>O(L)</b> (L = Prefix Length)</div>
                         <table style="width: 100%; font-size: 10px; margin-top: 5px;">
-                            <tr><td>Chars Traversed:</td><td id="comp-trie-chars">0</td></tr>
-                            <tr><td>Nodes Visited:</td><td id="comp-trie-nodes">0</td></tr>
-                            <tr><td>Comparisons:</td><td id="comp-trie-comp">0</td></tr>
+                            <tr>
+                                <td>Chars Traversed:</td>
+                                <td id="comp-trie-chars">0</td>
+                            </tr>
+                            <tr>
+                                <td>Nodes Visited:</td>
+                                <td id="comp-trie-nodes">0</td>
+                            </tr>
+                            <tr>
+                                <td>Comparisons:</td>
+                                <td id="comp-trie-comp">0</td>
+                            </tr>
                         </table>
                     </div>
                     <div class="complexity-card">
-                        <div style="font-weight: bold; font-size: 11px; border-bottom: 1px solid #808080; margin-bottom: 5px; color: #800000;">Linear Scan</div>
+                        <div
+                            style="font-weight: bold; font-size: 11px; border-bottom: 1px solid #808080; margin-bottom: 5px; color: #800000;">
+                            Linear Scan</div>
                         <div style="font-size: 10px;">Complexity: <b>O(N * M)</b> (N = Papers, M = Len)</div>
                         <table style="width: 100%; font-size: 10px; margin-top: 5px;">
-                            <tr><td>Papers Checked:</td><td id="comp-lin-papers">0</td></tr>
-                            <tr><td>Chars Checked:</td><td id="comp-lin-chars">0</td></tr>
-                            <tr><td>Comparisons:</td><td id="comp-lin-comp">0</td></tr>
+                            <tr>
+                                <td>Papers Checked:</td>
+                                <td id="comp-lin-papers">0</td>
+                            </tr>
+                            <tr>
+                                <td>Chars Checked:</td>
+                                <td id="comp-lin-chars">0</td>
+                            </tr>
+                            <tr>
+                                <td>Comparisons:</td>
+                                <td id="comp-lin-comp">0</td>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -162,27 +226,36 @@
                         <span>Input Parsing & Tokenize:</span>
                         <span id="time-parse" style="font-weight: bold; font-family: monospace;">0 μs</span>
                     </div>
-                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;"><div id="bar-parse" style="background: #000080; height: 100%; width: 0%;"></div></div>
-                    
+                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;">
+                        <div id="bar-parse" style="background: #000080; height: 100%; width: 0%;"></div>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                         <span>Trie Traversal Walk:</span>
                         <span id="time-walk" style="font-weight: bold; font-family: monospace;">0 μs</span>
                     </div>
-                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;"><div id="bar-walk" style="background: #800080; height: 100%; width: 0%;"></div></div>
-                    
+                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;">
+                        <div id="bar-walk" style="background: #800080; height: 100%; width: 0%;"></div>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                         <span>Postings Fetch & Filter:</span>
                         <span id="time-fetch" style="font-weight: bold; font-family: monospace;">0 μs</span>
                     </div>
-                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;"><div id="bar-fetch" style="background: #008000; height: 100%; width: 0%;"></div></div>
-                    
+                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;">
+                        <div id="bar-fetch" style="background: #008000; height: 100%; width: 0%;"></div>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                         <span>Metadata Disk Read & Sort:</span>
                         <span id="time-sort" style="font-weight: bold; font-family: monospace;">0 μs</span>
                     </div>
-                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;"><div id="bar-sort" style="background: #a52a2a; height: 100%; width: 0%;"></div></div>
-                    
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px dashed #808080; padding-top: 4px; font-size: 12px;">
+                    <div style="background: #e0e0e0; height: 5px; width: 100%; margin-bottom: 8px;">
+                        <div id="bar-sort" style="background: #a52a2a; height: 100%; width: 0%;"></div>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px dashed #808080; padding-top: 4px; font-size: 12px;">
                         <span>Total C-Lookup Latency:</span>
                         <span id="time-total" style="color: #ff0000; font-family: monospace;">0 μs</span>
                     </div>
@@ -194,30 +267,42 @@
 
     <!-- Bottom Section: Memory & Pipeline Visualizer -->
     <div class="main-layout">
-        
+
         <!-- Low Level Memory Visualization -->
         <div style="flex: 2;">
             <div class="retro-panel" style="height: 100%;">
                 <div class="retro-panel-title">Memory Visualizer (Heap / Stack Trace)</div>
                 <div style="display: flex; gap: 15px;">
-                    
+
                     <!-- Call Stack Frame -->
                     <div style="flex: 1;">
-                        <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; text-decoration: underline;">Simulated Call Stack</div>
+                        <div
+                            style="font-weight: bold; font-size: 12px; margin-bottom: 6px; text-decoration: underline;">
+                            Simulated Call Stack</div>
                         <table class="retro-table" id="stack-table">
                             <thead>
-                                <tr><th>Function</th><th>Parameters</th><th>Local Variables</th></tr>
+                                <tr>
+                                    <th>Function</th>
+                                    <th>Parameters</th>
+                                    <th>Local Variables</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="3" style="text-align: center; color: #808080;">Call stack empty</td></tr>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #808080;">Call stack empty</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <!-- Physical Heap Layout (Graphical Block Visualizer) -->
                     <div style="flex: 1;">
-                        <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; text-decoration: underline;">Trie Node Heap Allocations (Pointer Graph)</div>
-                        <div id="heap-blocks-container" class="heap-blocks-container" style="border: 1px solid #808080; background: #ffffff; height: 160px; overflow-y: auto; padding: 10px; position: relative; display: flex; flex-direction: column; gap: 8px;">
-                            <div style="text-align: center; color: #808080; padding-top: 40px; font-size: 11px;">Heap quiet</div>
+                        <div
+                            style="font-weight: bold; font-size: 12px; margin-bottom: 6px; text-decoration: underline;">
+                            Trie Node Heap Allocations (Pointer Graph)</div>
+                        <div id="heap-blocks-container" class="heap-blocks-container"
+                            style="border: 1px solid #808080; background: #ffffff; height: 160px; overflow-y: auto; padding: 10px; position: relative; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; color: #808080; padding-top: 40px; font-size: 11px;">Heap
+                                quiet</div>
                         </div>
                     </div>
                 </div>
@@ -228,42 +313,67 @@
         <div style="flex: 1;">
             <div class="retro-panel" style="height: 100%; display: flex; flex-direction: column;">
                 <div class="retro-panel-title">Search Engine Internals Data Flow</div>
-                <div id="internals-flowchart" style="position: relative; height: 130px; border: 1px solid #808080; background: #ffffff; overflow: hidden; font-family: Tahoma, sans-serif; font-size: 9px; flex-shrink: 0;">
+                <div id="internals-flowchart"
+                    style="position: relative; height: 130px; border: 1px solid #808080; background: #ffffff; overflow: hidden; font-family: Tahoma, sans-serif; font-size: 9px; flex-shrink: 0;">
                     <!-- Flow nodes -->
-                    <div class="flow-node" id="flow-query" style="position: absolute; left: 10px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 45px; text-align: center;">Query</div>
-                    <div class="flow-node" id="flow-trie" style="position: absolute; left: 85px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 50px; text-align: center;">Trie Walk</div>
-                    <div class="flow-node" id="flow-postings" style="position: absolute; left: 85px; top: 70px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 50px; text-align: center;">Postings</div>
-                    <div class="flow-node" id="flow-meta" style="position: absolute; left: 180px; top: 70px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 55px; text-align: center;">Metadata</div>
-                    <div class="flow-node" id="flow-results" style="position: absolute; left: 180px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 55px; text-align: center;">Results</div>
-                    
+                    <div class="flow-node" id="flow-query"
+                        style="position: absolute; left: 10px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 45px; text-align: center;">
+                        Query</div>
+                    <div class="flow-node" id="flow-trie"
+                        style="position: absolute; left: 85px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 50px; text-align: center;">
+                        Trie Walk</div>
+                    <div class="flow-node" id="flow-postings"
+                        style="position: absolute; left: 85px; top: 70px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 50px; text-align: center;">
+                        Postings</div>
+                    <div class="flow-node" id="flow-meta"
+                        style="position: absolute; left: 180px; top: 70px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 55px; text-align: center;">
+                        Metadata</div>
+                    <div class="flow-node" id="flow-results"
+                        style="position: absolute; left: 180px; top: 10px; border: 1px solid #808080; background: #dcdcdc; padding: 4px; font-weight: bold; width: 55px; text-align: center;">
+                        Results</div>
+
                     <!-- SVG Overlay to draw connection paths -->
-                    <svg style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;">
+                    <svg
+                        style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;">
                         <!-- Arrows -->
                         <defs>
-                            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                                orient="auto-start-reverse">
                                 <path d="M 0 2 L 10 5 L 0 8 z" fill="#808080" />
                             </marker>
-                            <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6"
+                                markerHeight="6" orient="auto-start-reverse">
                                 <path d="M 0 2 L 10 5 L 0 8 z" fill="#ff0000" />
                             </marker>
                         </defs>
                         <!-- Connections -->
-                        <path id="path-q-t" d="M 59 20 L 85 20" stroke="#808080" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-                        <path id="path-t-p" d="M 110 32 L 110 70" stroke="#808080" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-                        <path id="path-p-m" d="M 140 80 L 180 80" stroke="#808080" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-                        <path id="path-m-r" d="M 207 70 L 207 32" stroke="#808080" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                        <path id="path-q-t" d="M 59 20 L 85 20" stroke="#808080" stroke-width="1.5" fill="none"
+                            marker-end="url(#arrow)" />
+                        <path id="path-t-p" d="M 110 32 L 110 70" stroke="#808080" stroke-width="1.5" fill="none"
+                            marker-end="url(#arrow)" />
+                        <path id="path-p-m" d="M 140 80 L 180 80" stroke="#808080" stroke-width="1.5" fill="none"
+                            marker-end="url(#arrow)" />
+                        <path id="path-m-r" d="M 207 70 L 207 32" stroke="#808080" stroke-width="1.5" fill="none"
+                            marker-end="url(#arrow)" />
                     </svg>
                     <!-- Animated flying data packet dot -->
-                    <div id="flow-packet" style="position: absolute; width: 6px; height: 6px; background-color: red; border-radius: 50%; display: none; z-index: 10;"></div>
-                    
-                    <div id="pipeline-desc" style="position: absolute; bottom: 3px; left: 5px; right: 5px; text-align: center; font-size: 8px; color: #555; border-top: 1px dotted #ccc; padding-top: 2px;">
+                    <div id="flow-packet"
+                        style="position: absolute; width: 6px; height: 6px; background-color: red; border-radius: 50%; display: none; z-index: 10;">
+                    </div>
+
+                    <div id="pipeline-desc"
+                        style="position: absolute; bottom: 3px; left: 5px; right: 5px; text-align: center; font-size: 8px; color: #555; border-top: 1px dotted #ccc; padding-top: 2px;">
                         Waiting for query request...
                     </div>
                 </div>
                 <!-- Posting List Visualizer -->
-                <div id="postings-visualizer-box" style="margin-top: 6px; border-top: 1px dashed #808080; padding-top: 4px; display: flex; flex-direction: column; flex-grow: 1;">
-                    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px; font-family: Tahoma, sans-serif; color: #000080;">Active Posting List (Trie Node &rarr; IDs)</div>
-                    <div id="postings-ids-container" style="background: #ffffff; border: 1px inset #808080; font-family: monospace; font-size: 10px; padding: 4px; overflow-y: auto; color: #008000; line-height: 1.3; flex-grow: 1; min-height: 50px;">
+                <div id="postings-visualizer-box"
+                    style="margin-top: 6px; border-top: 1px dashed #808080; padding-top: 4px; display: flex; flex-direction: column; flex-grow: 1;">
+                    <div
+                        style="font-weight: bold; font-size: 11px; margin-bottom: 2px; font-family: Tahoma, sans-serif; color: #000080;">
+                        Active Posting List (Trie Node &rarr; IDs)</div>
+                    <div id="postings-ids-container"
+                        style="background: #ffffff; border: 1px inset #808080; font-family: monospace; font-size: 10px; padding: 4px; overflow-y: auto; color: #008000; line-height: 1.3; flex-grow: 1; min-height: 50px;">
                         No active search query.
                     </div>
                 </div>
@@ -274,48 +384,63 @@
     <!-- Middle Section: Dataset processing flowchart -->
     <div class="retro-panel">
         <div class="retro-panel-title">Dataset Processing Pipeline Flowchart</div>
-        <div class="pipeline-container" id="dataset-pipeline" style="justify-content: space-around; background: #ffffff; padding: 12px 6px;">
-            <div class="pipeline-step" id="data-raw" style="border: 2px solid #808080; background: #fafafa; font-weight: bold; font-family: monospace;">arxiv.json<br>(5.3 GB / 3,066,190 papers)</div>
+        <div class="pipeline-container" id="dataset-pipeline"
+            style="justify-content: space-around; background: #ffffff; padding: 12px 6px;">
+            <div class="pipeline-step" id="data-raw"
+                style="border: 2px solid #808080; background: #fafafa; font-weight: bold; font-family: monospace;">
+                arxiv.json<br>(5.3 GB / 3,066,190 papers)</div>
             <div class="pipeline-arrow" style="font-size: 18px;">&rarr;</div>
-            <div class="pipeline-step" id="data-extract" style="border: 1px solid #808080; padding: 6px;">Title, Author & Category Scanner</div>
+            <div class="pipeline-step" id="data-extract" style="border: 1px solid #808080; padding: 6px;">Title, Author
+                & Category Scanner</div>
             <div class="pipeline-arrow" style="font-size: 18px;">&rarr;</div>
-            <div class="pipeline-step" id="data-tokenize" style="border: 1px solid #808080; padding: 6px;">Tokenization (Word Extraction)</div>
+            <div class="pipeline-step" id="data-tokenize" style="border: 1px solid #808080; padding: 6px;">Tokenization
+                (Word Extraction)</div>
             <div class="pipeline-arrow" style="font-size: 18px;">&rarr;</div>
-            <div class="pipeline-step" id="data-norm" style="border: 1px solid #808080; padding: 6px;">Normalization (Lowercase & Stopwords)</div>
+            <div class="pipeline-step" id="data-norm" style="border: 1px solid #808080; padding: 6px;">Normalization
+                (Lowercase & Stopwords)</div>
             <div class="pipeline-arrow" style="font-size: 18px;">&rarr;</div>
-            <div class="pipeline-step" id="data-index" style="border: 2px solid #000080; font-weight: bold;">Trie Construction<br>(malloc Node Allocations)</div>
+            <div class="pipeline-step" id="data-index" style="border: 2px solid #000080; font-weight: bold;">Trie
+                Construction<br>(malloc Node Allocations)</div>
         </div>
-        <div id="dataset-pipeline-log" style="font-family: monospace; font-size: 10px; background: #000000; color: #00ff00; padding: 6px; margin-top: 8px; height: 55px; overflow-y: scroll; border: 2px inset #808080;">
+        <div id="dataset-pipeline-log"
+            style="font-family: monospace; font-size: 10px; background: #000000; color: #00ff00; padding: 6px; margin-top: 8px; height: 55px; overflow-y: scroll; border: 2px inset #808080;">
             [00.000] Dataset Loader initialized. 3,066,190 paper offsets mapped in virtual memory.
-    </div>
+        </div>
 
-    <!-- Analytics & Stats Panel -->
-    <div class="retro-panel">
-        <div class="retro-panel-title">Research Trends & Dataset Analytics (3M+ Papers Snapshot)</div>
-        <div class="analytics-section">
-            <div class="chart-container" id="category-chart">
-                <div style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">Top Categories</div>
-                <div class="chart-bars" id="category-bars"></div>
-            </div>
-            <div class="chart-container" id="year-chart">
-                <div style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">Yearly Publication Trend</div>
-                <div class="chart-bars" id="year-bars"></div>
-            </div>
-            <div class="chart-container" id="author-chart">
-                <div style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">Top Authors</div>
-                <div class="chart-bars" id="author-bars"></div>
+        <!-- Analytics & Stats Panel -->
+        <div class="retro-panel">
+            <div class="retro-panel-title">Research Trends & Dataset Analytics (3M+ Papers Snapshot)</div>
+            <div class="analytics-section">
+                <div class="chart-container" id="category-chart">
+                    <div
+                        style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">
+                        Top Categories</div>
+                    <div class="chart-bars" id="category-bars"></div>
+                </div>
+                <div class="chart-container" id="year-chart">
+                    <div
+                        style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">
+                        Yearly Publication Trend</div>
+                    <div class="chart-bars" id="year-bars"></div>
+                </div>
+                <div class="chart-container" id="author-chart">
+                    <div
+                        style="font-weight: bold; font-size: 12px; border-bottom: 1px solid #808080; margin-bottom: 8px;">
+                        Top Authors</div>
+                    <div class="chart-bars" id="author-bars"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Search Event Logger -->
-    <div class="retro-panel">
-        <div class="retro-panel-title">Search Engine Operations Console</div>
-        <div id="logger-console" class="logger-console">
-            [00.000] System Ready. Awaiting instructions...
+        <!-- Search Event Logger -->
+        <div class="retro-panel">
+            <div class="retro-panel-title">Search Engine Operations Console</div>
+            <div id="logger-console" class="logger-console">
+                [00.000] System Ready. Awaiting instructions...
+            </div>
         </div>
-    </div>
 
-    <script src="index.js"></script>
+        <script src="index.js"></script>
 </body>
+
 </html>

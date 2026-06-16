@@ -25,8 +25,8 @@ COPY index.html .
 COPY index.css .
 COPY index.js .
 
-# Expose HTTP port 8080
-EXPOSE 8080
+# Expose HTTP port 10000
+EXPOSE 10000
 
 # Run the backend server
 CMD ["./research_explorer"]
