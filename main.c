@@ -385,8 +385,13 @@ int main() {
     printf("Total Trie nodes allocated: %d\n", total_nodes_allocated);
     printf("Simulated Heap space used: %d bytes\n", current_heap_address - 0x1000);
     
-    // Start HTTP server on port 8080
-    start_server(8080);
+    // Start HTTP server on port 8080 or environment variable PORT
+    int port = 8080;
+    char* port_env = getenv("PORT");
+    if (port_env) {
+        port = atoi(port_env);
+    }
+    start_server(port);
     
     // Cleanup
     munmap(g_file_data, g_file_size);
