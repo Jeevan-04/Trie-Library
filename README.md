@@ -88,25 +88,60 @@ Instead of a wide array of pointers, siblings are chained sequentially. Finding 
 
 ---
 
-## 🛠️ Detailed Walkthrough of C Code Components
+## 🛠️ Detailed Walkthrough of Codebase Components
 
-### 1. Indexing & Memory Mapping ([main.c](file:///Users/jeevan/Desktop/DSA_Project/main.c))
-* **Fast I/O with `mmap`**: The 4.96 GB JSON dataset is memory-mapped (`PROT_READ`, `MAP_SHARED`). This maps the file into the virtual address space of the process, letting the OS manage page swapping, which is significantly faster than standard `fread` loop calls.
-* **Offset Table Scanning**: On boot, the program scans the file to locate newline characters, storing byte offset indices (`g_line_offsets`) for each paper. This allows instant $O(1)$ random access to the raw JSON of any document ID on disk.
-* **Stopwords Filtering**: Words matching common conjunctions/prepositions (e.g., *the, and, of*) are filtered out using `is_stop_word()` in [trie.c](file:///Users/jeevan/Desktop/DSA_Project/trie.c) to prevent index inflation.
+This project is built from scratch in pure C with zero external dependency libraries. Here is a detailed guide explaining the role of each source file:
 
-### 2. Multi-threaded / Single-threaded TCP Server ([server.c](file:///Users/jeevan/Desktop/DSA_Project/server.c))
-* Hosts a lightweight, raw HTTP socket server listening on port `8080`.
-* Handles CORS requests using options header handshake responses (`Access-Control-Allow-Origin: *`).
-* Exposes JSON endpoints:
-  * `/search?q=query&field=all&sort=date&page=1`: Executes prefix search and returns matched papers.
-  * `/suggestions?q=word`: Returns auto-complete candidate words.
-  * `/trie?q=word`: Details node pointers, siblings, and parent addresses to feed the SVG tree visualization.
-  * `/memory`: Serializes simulated heap frames and call stack snapshots.
-  * `/analytics`: Aggregates trends gathered during the initial indexing pass.
+### 1. Trie Engine Layer (`trie.h` & `trie.c`)
+* **Why**: Standard Tries allocate wide arrays of pointers for every alphabet character (e.g. `children[26]` or `children[256]`), which consumes massive amounts of RAM (208+ bytes per node). The **First-Child Next-Sibling (FCNS)** tree structure compresses this to exactly two pointers (`first_child` and `next_sibling`), dropping the memory of a node struct to **40 bytes**.
+* **What**: Implements the binary tree nodes, keyword insertions, prefix lookups, and suggestion collectors.
+* **How**:
+  * [TrieNode](file:///Users/jeevan/Desktop/DSA_Project/trie.h#L11-L26) holds the node character (`ch`), terminal flag (`is_word`), a simulated physical heap memory address (`address`), child/sibling node pointers, and a postings list (`paper_indices`) containing matched document IDs.
+  * `create_trie_node()`: Dynamically allocates nodes and generates simulated hex addresses.
+  * `trie_insert()`: Traverses the word down the Trie. It walks the `first_child` pointer, then scans the `next_sibling` list. If a character is missing, it dynamically allocates a new node and links it into the sibling chain. Once the end of the word is reached, it appends the paper's ID to the postings list.
+  * `trie_search()`: Traverses the sibling chains matching characters sequentially. It logs visited nodes and updates simulated memory heap blocks.
+  * `trie_collect_suggestions()`: Collects suggestions by traversing suffixes starting from a matched prefix node using depth-first sibling recursion.
 
-### 3. Parser ([parser.c](file:///Users/jeevan/Desktop/DSA_Project/parser.c))
-* Extracts JSON values (such as `title`, `authors`, `categories`, and `abstract`) manually using fast string pointers (`strstr`), bypassing heavy JSON libraries.
+### 2. Zero-Dependency JSON Parser (`parser.h` & `parser.c`)
+* **Why**: General-purpose JSON parsing libraries (like cJSON) parse the entire document structure into a complex tree in memory. Doing this for 3 million lines would cause massive CPU overhead and memory fragmentation.
+* **What**: Scans the JSON text manually using direct pointers (`strstr`), bypassing full JSON serialization.
+* **How**:
+  * `extract_field()`: Searches for target key boundaries (e.g. `"title"`, `"authors"`) using pointer matching. It calculates character lengths and extracts strings directly into memory buffers.
+  * `parse_json_line()`: Parses the raw JSON lines, allocating the `PaperMetadata` structure, extracting fields, and unescaping special characters.
+  * `unescape_string()`: Scans in-place to translate JSON double-escapes (like `\n`, `\t`, `\"`) back to their raw ASCII forms.
+
+### 3. C TCP Socket Server (`server.h` & `server.c`)
+* **Why**: Building a low-level HTTP server teaches network concepts like raw TCP stream parsing, connection states, options handshakes, and CORS mechanisms without web frameworks.
+* **What**: Binds to a TCP port, listens for incoming request packets, routes URL paths, and responds with JSON data or static frontend files.
+* **How**:
+  * `start_server()`: Standard socket flow: calls `socket()`, sets `SO_REUSEADDR` to recycle ports, maps `bind()`, and listens for TCP client connections.
+  * HTTP Loop: Calls `accept()` to establish a connection, reads HTTP header buffers, extracts the request URL path, and routes it to specific handlers:
+    * `/` or `/index.html`: Streams the UI page.
+    * `/search`: Collects search parameters, tokenizes multi-word queries, intersects postings lists (`intersect_postings`), parses the JSON text of matching document offsets, sorts the final matching array, and builds the JSON string response.
+    * `/suggestions`: Returns auto-complete candidate words.
+    * `/memory`, `/trie`, `/analytics`: Exposes internals to feed the visualization screens.
+  * Options Handshake: Responds to HTTP `OPTIONS` requests with CORS headers (`Access-Control-Allow-Origin: *`) to enable browser cross-origin requests.
+
+### 4. Application Orchestrator (`main.c`)
+* **Why**: High-performance systems coordination is needed to boot, map files, parse indices, handle memory, and start server threads.
+* **What**: Coordinates startup workflows, memory-maps the dataset, scans file offsets, tokenizes, indexes, and starts the TCP server.
+* **How**:
+  * **Memory Mapping (`mmap`)**: Maps the 5.3 GB dataset file directly into the virtual address space of the process, allowing high-performance random reads without reading the file sequentially.
+  * **Newline Offsets Scan**: Loops the mapped memory once at startup to index the byte position of each line in the dataset (`g_line_offsets`), enabling $O(1)$ random seek access to any document ID on disk.
+  * **Trie Build**: Loops the offset table, tokenizes the metadata fields, filters out common stopwords, and indexes the keywords into the Trie.
+  * **Dynamic Port Binding**: Reads the `PORT` environment variable to support cloud deployment platforms (like Render which binds to custom port 10000).
+  * **Cloud Fallback Demo Mode**: Checks if the 5.3 GB file is missing on startup (like when running on Render Free Tier). If so, it dynamically generates a 180,000 papers database (or mock database) on the fly, allowing the app to boot without crashing.
+
+### 5. Frontend Visual Dashboard (`index.html`, `index.css`, `index.js`)
+* **Why**: A retro-style console interface to visually demonstrate C pointer walks and database operations.
+* **What**:
+  * `index.html`: Retro 2000-era console styling, panels, timing meters, and canvas containers.
+  * `index.css`: Styles retro bevels, glassmorphic layouts, terminal logs, and flashing animations.
+  * `index.js`: Dynamically fetches C server APIs, draws the branching Trie subtree inside the SVG canvas, tracks timing metrics, visualizes call stack frames, and logs memory address pointers visited.
+
+### 6. CLI Tools (`push_image.sh` & `Makefile`)
+* [push_image.sh](file:///Users/jeevan/Desktop/DSA_Project/push_image.sh): Helps you tag and push your built Docker image to Docker Hub, prompting you to log in if needed.
+* [Makefile](file:///Users/jeevan/Desktop/DSA_Project/Makefile): Compiles the C files locally with optimized flags and exposes `-D_GNU_SOURCE` to support standard libraries on both macOS and Alpine Linux.
 
 ---
 
