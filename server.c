@@ -42,12 +42,20 @@ typedef struct {
 StackFrame g_stack[MAX_STACK_DEPTH];
 int g_stack_depth = 0;
 
+StackFrame g_peak_stack[MAX_STACK_DEPTH];
+int g_peak_stack_depth = 0;
+
 void push_stack_frame(const char* func, const char* params, const char* locals) {
     if (g_stack_depth < MAX_STACK_DEPTH) {
         strncpy(g_stack[g_stack_depth].function_name, func, 63);
         strncpy(g_stack[g_stack_depth].parameters, params, 127);
         strncpy(g_stack[g_stack_depth].local_variables, locals, 127);
         g_stack_depth++;
+        
+        if (g_stack_depth > g_peak_stack_depth) {
+            g_peak_stack_depth = g_stack_depth;
+            memcpy(g_peak_stack, g_stack, g_stack_depth * sizeof(StackFrame));
+        }
     }
 }
 
@@ -234,6 +242,7 @@ static void handle_search_endpoint(int client_fd, const char* query_str) {
     
     push_stack_frame("handle_search_endpoint", "query_str", "page=1, field='all'");
     g_visited_nodes_count = 0;
+    g_peak_stack_depth = 0;
     
     char q[512] = {0};
     char field[64] = "all";
@@ -595,13 +604,13 @@ static void handle_trie_endpoint(int client_fd, const char* query_str) {
 
 static void handle_memory_endpoint(int client_fd) {
     char json[16384] = "{\n  \"stack\": [\n";
-    for (int i = 0; i < g_stack_depth; i++) {
+    for (int i = 0; i < g_peak_stack_depth; i++) {
         char frame[512];
         snprintf(frame, sizeof(frame),
                  "    {\"function\": \"%s\", \"params\": \"%s\", \"locals\": \"%s\"}",
-                 g_stack[i].function_name, g_stack[i].parameters, g_stack[i].local_variables);
+                 g_peak_stack[i].function_name, g_peak_stack[i].parameters, g_peak_stack[i].local_variables);
         strcat(json, frame);
-        if (i < g_stack_depth - 1) strcat(json, ",\n");
+        if (i < g_peak_stack_depth - 1) strcat(json, ",\n");
     }
     strcat(json, "\n  ],\n  \"heap\": [\n");
     
