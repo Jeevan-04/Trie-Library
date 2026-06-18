@@ -225,6 +225,6 @@ make
 ./research_explorer
 ```
 
-Once the dataset offsets are mapped and the Trie is fully constructed, the server will bind to port `8080`. Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)** in your browser to interact with the dashboard!
+Once the dataset offsets are mapped and the Trie is fully constructed, the server will bind to port `8080`. Open **[[http://127.0.0.1:8080](http://127.0.0.1:10000)](http://127.0.0.1:10000)** in your browser to interact with the dashboard!
 # Trie-Library
  
